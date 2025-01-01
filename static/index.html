@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>プログラムの名前生成アプリ</title>
+</head>
+<body>
+    <h1>プログラムの名前生成アプリ</h1>
+    <p>目的や機能を入力してください：</p>
+    <input type="text" id="input-box" placeholder="例：データを分析する関数">
+    <button id="submit-button">名前を生成</button>
+    <p id="result"></p>
+
+    <script>
+        document.getElementById('submit-button').addEventListener('click', function() {
+            const query = document.getElementById('input-box').value.trim();
+            if (query !== '') {
+                handleInput(query);
+            }
+        });
+
+        function handleInput(query) {
+            console.log('Sending query:', query);
+
+            fetch('/naming_app/generate_name', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').textContent = 'エラーが発生しました: ' + data.error;
+                } else {
+                    document.getElementById('result').textContent = '提案された名前: ' + data.result;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'エラーが発生しました。';
+            });
+        }
+    </script>
+</body>
+</html>
